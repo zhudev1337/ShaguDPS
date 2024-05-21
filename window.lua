@@ -88,6 +88,17 @@ local view_templates = {
     bar_string = "|cffcc8888+%s|r %s (%.1f%%)",
     bar_string_params = { "uneffective_value_persecond", "effective_value_persecond", "effective_percent" },
   },
+  [5] = { -- dps & damage
+  name = "DPSDAMAGE",
+  sort = config.dpsdamage_sortby.sort,
+  bar_max = config.dpsdamage_sortby.bar_max,
+  bar_val = config.dpsdamage_sortby.bar_val,
+  bar_lower_max = nil,
+  bar_lower_val = nil,
+  chat_string = "%s (%.1f%%) | %s (%.1f%%)",
+  bar_string = "%s (%.1f%%) | %s (%.1f%%)",
+  bar_string_params = { "value_persecond", "percent_persecond", "value", "percent" },
+},
 }
 
 -- panel button templates
@@ -101,6 +112,7 @@ local menubuttons = {
   ["DPS"]      = { 1, 2, 25.5,  "DPS View",        "|cffffffffShow Damage Per Second",  "view" },
   ["Heal"]     = { 2, 3, 25.5,  "Heal View",       "|cffffffffShow Healing Done",       "view" },
   ["HPS"]      = { 3, 4, 25.5,  "HPS View",        "|cffffffffShow Heal Per Second",    "view" },
+  ["DPSDAMAGE"] = { 4, 5, 25.5,  "DPS & Damage View",        "|cffffffffShow DPS & DAMAGE",  "view" },
 }
 
 -- default colors of chat types
@@ -392,6 +404,7 @@ window.btnSegment:SetScript("OnClick", function()
     window.btnDPS:Hide()
     window.btnHeal:Hide()
     window.btnHPS:Hide()
+    window.btnDPSDAMAGE:Hide()
     window.btnOverall:Hide()
     window.btnCurrent:Hide()
   else
@@ -399,6 +412,7 @@ window.btnSegment:SetScript("OnClick", function()
     window.btnDPS:Hide()
     window.btnHeal:Hide()
     window.btnHPS:Hide()
+    window.btnDPSDAMAGE:Hide()
     window.btnOverall:Show()
     window.btnCurrent:Show()
   end
@@ -417,7 +431,7 @@ window.btnMode.caption = window.btnMode:CreateFontString("ShaguDPSTitle", "OVERL
 window.btnMode.caption:SetFont(STANDARD_TEXT_FONT, 9)
 window.btnMode.caption:SetText("Mode: Damage")
 window.btnMode.caption:SetAllPoints()
-window.btnMode.tooltip = { "Select Mode", "|cffffffffDamage, DPS, Heal, HPS" }
+window.btnMode.tooltip = { "Select Mode", "|cffffffffDamage, DPS, Heal, HPS, DPSDAMAGE" }
 window.btnMode:SetScript("OnEnter", btnEnter)
 window.btnMode:SetScript("OnLeave", btnLeave)
 window.btnMode:SetScript("OnClick", function()
@@ -426,6 +440,7 @@ window.btnMode:SetScript("OnClick", function()
     window.btnDPS:Hide()
     window.btnHeal:Hide()
     window.btnHPS:Hide()
+    window.btnDPSDAMAGE:Hide()
     window.btnOverall:Hide()
     window.btnCurrent:Hide()
   else
@@ -433,6 +448,7 @@ window.btnMode:SetScript("OnClick", function()
     window.btnDPS:Show()
     window.btnHeal:Show()
     window.btnHPS:Show()
+    window.btnDPSDAMAGE:Show()
     window.btnOverall:Hide()
     window.btnCurrent:Hide()
   end
@@ -682,6 +698,7 @@ local buttons = {
   window.btnDPS,
   window.btnHeal,
   window.btnHPS,
+  window.btnDPSDAMAGE,
   window.btnOverall,
   window.btnCurrent
 }
@@ -726,6 +743,9 @@ window.Refresh = function(force, report)
     elseif config.view == 4 then
       window.btnHPS.caption:SetTextColor(1,.9,0,1)
       window.btnMode.caption:SetText("HPS")
+    elseif config.view == 5 then
+      window.btnDPSDAMAGE.caption:SetTextColor(1,.9,0,1)
+      window.btnMode.caption:SetText("DPS & Damage")
     end
 
     if config.segment == 0 then
@@ -758,6 +778,11 @@ window.Refresh = function(force, report)
   local view_effective  = (config.view == 3 or config.view == 4) and true or nil
 
   local template = view_templates[config.view]
+
+  template.sort = config.dpsdamage_sortby.sort
+  template.bar_max = config.dpsdamage_sortby.bar_max
+  template.bar_val = config.dpsdamage_sortby.bar_val
+
   local sort = sort_algorithms[template.sort]
 
   -- report to chat if flag is set

@@ -81,6 +81,9 @@ local config = {
   -- window
   backdrop = 1,
   view = 1,
+
+  --dps&damage view
+  dpsdamage_sortby = {bar_max = "best", bar_val = "value", sort = "normal"},
 }
 
 local internals = {

@@ -41,6 +41,7 @@ SlashCmdList["SHAGUMETER"] = function(msg, editbox)
     p("  /sdps pastel " .. config.pastel .. " |cffcccccc- Use pastel colors")
     p("  /sdps backdrop " .. config.backdrop .. " |cffcccccc- Show window backdrop and border")
     p("  /sdps toggle |cffcccccc- Toggle window")
+    p("  /sdps sort " .. "'dps' or 'damage'" .. "|cffcccccc- Change 'DPS & Damage' View Sorting")
     return
   end
 
@@ -149,6 +150,20 @@ SlashCmdList["SHAGUMETER"] = function(msg, editbox)
       p("|cffffcc00Shagu|cffffffffDPS:|cffffddcc Show window backdrop: " .. config.backdrop)
     else
       p("|cffffcc00Shagu|cffffffffDPS:|cffff5511 Valid Options are 0-1")
+    end
+  elseif strlower(cmd) == "sort" then
+    if args == "dps" then 
+      config.dpsdamage_sortby = {bar_max = "persecond_best", bar_val = "value_persecond", sort = "per_second"}
+      ShaguDPS_Config = config
+      window.Refresh(true)
+      p("|cffffcc00Shagu|cffffffffDPS:|cffffddcc Sort Damage & DPS View by " .. args)
+    elseif args == "damage" then
+      config.dpsdamage_sortby = {bar_max = "best", bar_val = "value", sort = "normal"}
+      ShaguDPS_Config = config
+      window.Refresh(true)
+      p("|cffffcc00Shagu|cffffffffDPS:|cffffddcc Sort Damage & DPS View by " .. args)
+    else 
+      p("|cffffcc00Shagu|cffffffffDPS:|cffff5511 Valid options are 'dps' and 'damage'")
     end
   end
 end
