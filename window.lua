@@ -796,12 +796,20 @@ window.Refresh = function(force, report)
   values = window.GetCaps(segment, values)
 
   local i = 1
+  local userData = nil  -- Placeholder for the user's data
+  local userName = UnitName("player")  -- Assuming UnitName("player") gives the user's name
+  local userDisplayed = false  -- Flag to track if the user's bar is displayed
+
   for name, unitdata in spairs(segment, sort) do
     -- attach name to values
     values.name = name
 
     -- load data values of the current unit
     values = window.GetData(unitdata, values)
+
+    if name == userName then
+      userData = {values = values, index = i}  -- Store user's data
+    end
 
     local bar = i - scroll
     if bar >= 1 and bar <= config.bars then
@@ -833,6 +841,11 @@ window.Refresh = function(force, report)
       window.bars[bar].textRight:SetText(line)
       window.bars[bar]:Show()
 
+      -- Check if the current bar is the user's bar
+      if name == userName then
+        userDisplayed = true
+      end
+
       -- report to chat if flag is set
       if report and i <= 10 then
         local chat = string.format(template.chat_string,
@@ -844,7 +857,48 @@ window.Refresh = function(force, report)
 
     i = i + 1
   end
+
+  -- Replace the bottom bar with the user's bar if necessary
+  if userData and not userDisplayed then
+    local bar = config.bars  -- Replace the last bar position
+    window.bars[bar] = not force and window.bars[bar] or CreateBar(window, bar)
+
+    -- attach unit and titles to bar
+    window.bars[bar].title = userData.values.name
+    window.bars[bar].unit = userName
+
+    window.bars[bar]:SetMinMaxValues(0, userData.values[template.bar_max])
+    window.bars[bar]:SetValue(userData.values[template.bar_val])
+
+    -- enable lower bar if template requires it
+    if template.bar_lower_max and template.bar_lower_val then
+      window.bars[bar].lowerBar:SetMinMaxValues(0, userData.values[template.bar_lower_max])
+      window.bars[bar].lowerBar:SetValue(userData.values[template.bar_lower_val])
+      window.bars[bar].lowerBar:Show()
+    else
+      window.bars[bar].lowerBar:Hide()
+    end
+
+    window.bars[bar]:SetStatusBarColor(userData.values.color.r, userData.values.color.g, userData.values.color.b)
+    window.bars[bar].textLeft:SetText(i .. ". " .. userData.values.name)
+
+    local a = template.bar_string_params
+    local line = string.format(template.bar_string,
+      userData.values[a[1]], userData.values[a[2]], userData.values[a[3]], userData.values[a[4]], userData.values[a[5]])
+
+    window.bars[bar].textRight:SetText(line)
+    window.bars[bar]:Show()
+
+    -- report to chat if flag is set
+    if report then
+      local chat = string.format(template.chat_string,
+        userData.values[a[1]], userData.values[a[2]], userData.values[a[3]], userData.values[a[4]], userData.values[a[5]])
+
+      announce(i .. ". " .. userData.values.name .. " " .. chat)
+    end
+  end
 end
+
 
 table.insert(parser.callbacks.refresh, function()
   window.needs_refresh = true
