@@ -767,7 +767,7 @@ window.Refresh = function(force, report)
   end
 
   -- set view to damage or heal
-  if config.view == 1 or config.view == 2 then
+  if config.view == 1 or config.view == 2 or config.view == 5 then
     segment = data.damage[(config.segment or 0)]
   elseif config.view == 3 or config.view == 4 then
     segment = data.heal[(config.segment or 0)]
